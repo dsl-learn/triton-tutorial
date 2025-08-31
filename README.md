@@ -21,9 +21,16 @@ Learn Triton: No GPU Experience Required
 
 作者邮箱：tt@bobhuang.xyz
 
+<!-- vscode-markdown-toc -->
 * 一、 [Triton 简介](#Triton-简介)
-
 * 二、 [向量加算子实战](#向量加算子实战)
+ * 2.1 torch的向量加法
+ * 2.2 单program 16个元素加法和验证
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
 
 ##  一、 <a name='Triton-简介'></a>Triton-简介
 
@@ -38,6 +45,8 @@ Learn Triton: No GPU Experience Required
 本教程使用 Triton 3.4.0(released on 2025, Jul 31)，只需安装 torch==2.8.0。若使用较低版本的 PyTorch，可自行升级 Triton版本。Triton具有很好的版本兼容，大部分算子对Triton版本**没有要求**。
 
 入门先学 a + b，向量加法可以表示为 向量c = 向量a + 向量b，即把 a 和 b 中对应位置的每个数字相加。
+
+### 2.1 torch的向量加法
 
 我们先用Pytorch来实现下，我们可以用 torch.randn 来生成随机的向量a、b，在torch里直接相加就可以。
 
@@ -66,7 +75,11 @@ tensor([-0.5568, -0.8474,  0.9805,  0.3682,  2.1769, -0.7145, -1.0820, -0.2469,
        device='cuda:0')
 ```
 
-Pytorch的是通过调用了aten的[aten/src/ATen/native/cuda/CUDALoops.cuh:L334](https://github.com/pytorch/pytorch/blob/ba56102387ef21a3b04b357e5b183d48f0afefc7/aten/src/ATen/native/cuda/CUDALoops.cuh#L334) 的CUDA kernel来完成计算的。我们来写我们的Triton kernel。
+Pytorch的是通过调用了aten的[aten/src/ATen/native/cuda/CUDALoops.cuh:L334](https://github.com/pytorch/pytorch/blob/ba56102387ef21a3b04b357e5b183d48f0afefc7/aten/src/ATen/native/cuda/CUDALoops.cuh#L334) 的CUDA kernel来完成计算的。
+
+### 2.2 单program 16个元素加法和验证
+
+我们来写我们的Triton kernel。
 
 我们先考虑在1个program内做完，也就是1个Block要完成16个元素的计算。Triton的源码需要使用@triton.jit装饰器，用来标记这是一段Triton kernel函数，使其能够被JIT（即时编译）编译并在GPU上运行。然后我们将tensor做为参数，实际上传递下去的是tensor的data_ptr()也就是指针。空kernel代码如下所示
 
@@ -80,9 +93,37 @@ def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
     vector_add_kernel[grid](a, b, c)
 ```
 
-kernel内我们需要取出16个元素，需要使用`tl.arange`生成连续索引`[0, 1, ..., 16)`，然后使用`tl.load`取出元素内容。分别取出a和b后对两者进行相加。然后使用`tl.store`对结果进行存储，kernel代码如下所示。
+kernel内我们需要取出16个元素，对应位置元素相加后存起来即可。可以使用`tl.arange`生成连续索引`[0, 1, ..., 16)`，那么a的指针就可以用`a_ptr + offsets`表达，然后使用`tl.load`取出元素内容。在分别取出a和b后对两者进行相加，最后使用`tl.store`对结果进行存储，kernel代码如下所示。
 
 ```Python
+import triton
+import triton.language as tl
+
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr):
+    # 生成连续索引 [0, 1, ..., 15]，用于访问 16 个元素
+    offsets = tl.arange(0, 16)
+    # 根据索引从 a_ptr 指向的地址加载 16 个元素
+    a = tl.load(a_ptr + offsets)
+    # 根据索引从 b_ptr 指向的地址加载 16 个元素
+    b = tl.load(b_ptr + offsets)
+    # 对应位置元素相加
+    c = a + b
+    # 将结果写回到 c_ptr 指向的地址
+    tl.store(c_ptr + offsets, c)
+```
+
+我们接下来验证下这个kernel，我们可以使用`torch.empty_like`来产生`triton_output`，然后调用`solve`即可。
+
+```Python
+    triton_output = torch.empty_like(a)
+    solve(a, b , triton_output, N)
+```
+
+对比答案可以使用`torch.testing.assert_close`，所以整个Python程序如下所示
+
+```Python
+import torch
 import triton
 import triton.language as tl
 
@@ -93,4 +134,22 @@ def vector_add_kernel(a_ptr, b_ptr, c_ptr):
     b = tl.load(b_ptr + offsets)
     c = a + b
     tl.store(c_ptr + offsets, c)
+
+def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
+    grid = (1,)
+    vector_add_kernel[grid](a, b, c)
+
+if __name__ == "__main__":
+    N = 16
+    a = torch.randn(N, device='cuda')
+    b = torch.randn(N, device='cuda')
+    torch_output = a + b
+    triton_output = torch.empty_like(a)
+    solve(a, b , triton_output, N)
+    if torch.allclose(triton_output, torch_output):
+        print("✅ Triton and Torch match")
+    else:
+        print("❌ Triton and Torch differ")
 ```
+
+运行上述程序你会得到`✅ Triton and Torch match`，代表可以对上答案。
