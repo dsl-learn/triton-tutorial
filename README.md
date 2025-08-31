@@ -27,6 +27,7 @@ Learn Triton: No GPU Experience Required
  * 2.1 torch的向量加法
  * 2.2 单program 16个元素加法和验证
  * 2.3 通过mask控制元素访问
+ * 2.4 多Block(program)运行
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -208,3 +209,75 @@ if __name__ == "__main__":
 
 运行以上程序会输出15个`✅ Triton and Torch match`，我们的算子通过了第一阶段的健壮性检测。
 
+我们可以增加`tl.arange`中end的值，来让更大N运行，你可以动手试试。
+
+### 2.4 多Block(program)运行
+
+`1048576`是`tl.arange`的最大值，比如`2097152`就会报错`ValueError: numel (2097152) exceeds triton maximum tensor numel (1048576)`，Triton 默认 单个 tensor 最多只能有 2^20 = 1048576 个元素。所以我们需要使用多个`Block`。
+
+`Block`(program,线程块)是GPU 软件调度的最小可独立调度的单位，我们当然不止1个block，从性能角度，我们也应该使用多个Block来完成任务。
+
+Grid 是由多个 Block 组成的集合，一个 Grid 可以是 1D、2D 或 3D。向量的Block只在 x 方向排列就够了，kernel内我们可以使用`tl.program_id(axis=0)` 来获取 block 的编号。
+
+然后我们可以通过Triton的`device_print`将`pid`输出出来，以下为示例代码。
+
+```Python
+import triton
+import triton.language as tl
+
+@triton.jit
+def test_pid_kernel():
+    pid = tl.program_id(axis=0)
+    tl.device_print('pid', pid)
+
+def solve():
+    grid = (2,)
+    test_pid_kernel[grid]()
+
+if __name__ == "__main__":
+    solve()
+```
+
+通过运行以上代码，你会得到很多个`pid (0, 0, 0) idx () pid: 0`和`pid (1, 0, 0) idx () pid: 1`，因为每个线程都执行了输出操作，我们Triton代码就是通过运行多个线程来完成加速的。
+
+针对我们的程序我们也是要使用`pid`来控制偏移即可。我们每个Block依旧只做`16`个元素，需要的Block数就是`ceil(N/16)`，我们可以调用`triton.cdiv(N, 16)`来计算。kernel内去获取索引，计算当前Block起始索引，然后生成生成当前 block 内的连续索引即可，其他和之前都一致。全部代码如下所示
+
+```Python
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr, N):
+    # 获取当前 program 在 在 x 方向 中的索引
+    pid = tl.program_id(axis=0)
+    # 计算当前 block 的起始元素索引
+    block_start = pid * 16
+    # 生成当前 block 内的连续索引 [block_start, block_start+1, ..., block_start+15]
+    offsets = block_start + tl.arange(0, 16)
+    mask = offsets < N
+    a = tl.load(a_ptr + offsets, mask=mask)
+    b = tl.load(b_ptr + offsets, mask=mask)
+    c = a + b
+    tl.store(c_ptr + offsets, c, mask=mask)
+
+def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
+    grid = (triton.cdiv(N, 16), )
+    vector_add_kernel[grid](a, b, c, N)
+
+if __name__ == "__main__":
+    N = 12345
+    a = torch.randn(N, device='cuda')
+    b = torch.randn(N, device='cuda')
+    torch_output = a + b
+    triton_output = torch.empty_like(a)
+    solve(a, b , triton_output, N)
+    if torch.allclose(triton_output, torch_output):
+        print("✅ Triton and Torch match")
+    else:
+        print("❌ Triton and Torch differ")
+```
+
+我们可以修改任意`N`验证其正确，但是自己写的怎么确保呢，我们可以借助`online judge`，也就是[LeetGPU](https://leetgpu.com)。这个在线评测平台可以随机生成更多的数据帮你验证算子是否正确，另外其还提供了`H200`、`B200`等先进GPU。在[Vector Addition](https://leetgpu.com/challenges/vector-addition) 选择**Triton**并提交上述除`main`函数的代码，你会获得`Success`。
+
+![提交到LeetGPU的Vector Addition](pics/submit.png)
