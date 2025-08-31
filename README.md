@@ -35,11 +35,11 @@ Learn Triton: No GPU Experience Required
 
 * 1. [Triton 简介](#Triton-简介)
 * 2. [向量加算子实战](ex1-vector_add/blog.md)
- * 2.1. torch的向量加法
- * 2.2. 单program 16个元素加法和验证
- * 2.3. 通过mask控制元素访问
- * 2.4. 多Block(program)运行
- * 2.5. 使用参数化的BLOCK_SIZE
+  * 2.1. torch的向量加法
+  * 2.2. 单program 16个元素加法和验证
+  * 2.3. 通过mask控制元素访问
+  * 2.4. 多Block(program)运行
+  * 2.5. 使用参数化的BLOCK_SIZE
 
 * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
 * 附录2、kernel 优化机制覆盖情况(未覆盖)
