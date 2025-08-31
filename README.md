@@ -66,3 +66,31 @@ tensor([-0.5568, -0.8474,  0.9805,  0.3682,  2.1769, -0.7145, -1.0820, -0.2469,
        device='cuda:0')
 ```
 
+Pytorch的是通过调用了aten的[aten/src/ATen/native/cuda/CUDALoops.cuh:L334](https://github.com/pytorch/pytorch/blob/ba56102387ef21a3b04b357e5b183d48f0afefc7/aten/src/ATen/native/cuda/CUDALoops.cuh#L334) 的CUDA kernel来完成计算的。我们来写我们的Triton kernel。
+
+我们先考虑在1个program内做完，也就是1个Block要完成16个元素的计算。Triton的源码需要使用@triton.jit装饰器，用来标记这是一段Triton kernel函数，使其能够被JIT（即时编译）编译并在GPU上运行。然后我们将tensor做为参数，实际上传递下去的是tensor的data_ptr()也就是指针。空kernel代码如下所示
+
+```Python
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr):
+    pass
+
+def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
+    grid = (1,)
+    vector_add_kernel[grid](a, b, c)
+```
+
+kernel内我们需要取出16个元素，需要使用`tl.arange`生成连续索引`[0, 1, ..., 16)`，然后使用`tl.load`取出元素内容。分别取出a和b后对两者进行相加。然后使用`tl.store`对结果进行存储，kernel代码如下所示。
+
+```Python
+import triton
+import triton.language as tl
+
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr):
+    offsets = tl.arange(0, 16)
+    a = tl.load(a_ptr + offsets)
+    b = tl.load(b_ptr + offsets)
+    c = a + b
+    tl.store(c_ptr + offsets, c)
+```
