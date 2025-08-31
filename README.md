@@ -31,6 +31,8 @@ Learn Triton: No GPU Experience Required
 
 本教程使用 Triton 3.4.0(released on 2025, Jul 31)，只需安装 torch==2.8.0。若使用较低版本的 PyTorch，可自行升级 Triton版本。Triton具有很好的版本兼容，大部分算子对Triton版本**没有要求**。
 
+# 目录
+
 * 一、 [Triton 简介](#Triton-简介)
 * 二、 [向量加算子实战](ex1-vector_add/blog.md)
  * torch的向量加法
