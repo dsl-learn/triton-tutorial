@@ -26,6 +26,7 @@ Learn Triton: No GPU Experience Required
 * 二、 [向量加算子实战](#向量加算子实战)
  * 2.1 torch的向量加法
  * 2.2 单program 16个元素加法和验证
+ * 2.3 通过mask控制元素访问
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -153,3 +154,57 @@ if __name__ == "__main__":
 ```
 
 运行上述程序你会得到`✅ Triton and Torch match`，代表可以对上答案。
+
+### 2.3 通过mask控制元素访问
+
+如果输入是15个元素呢，是不是使用`offsets = tl.arange(0, 15)`就能解决问题呢，运行你会得到`ValueError: arange's range must be a power of 2`，这是Triton本身的限制，因为我们的`Block`(program, 线程块)处理的数据量通常是 2 的幂。为了避免访问越界，我们需要使用mask。
+
+mask是`tl.load`和`tl.store`的一个参数，我们计算mask也是将`tl.arange`的连续索引与`15`对比即可。
+
+```Python
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr):
+    offsets = tl.arange(0, 16)
+    # 计算 mask：只处理 offsets < 15 的位置
+    mask = offsets < 15
+    a = tl.load(a_ptr + offsets, mask=mask)
+    b = tl.load(b_ptr + offsets, mask=mask)
+    c = a + b
+    tl.store(c_ptr + offsets, c, mask=mask)
+```
+
+元素个数不一定都为15，1~16都有可能，所以我们将`N`做为参数传入，完整代码如下。
+
+```Python
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr, N):
+    offsets = tl.arange(0, 16)
+    mask = offsets < N
+    a = tl.load(a_ptr + offsets, mask=mask)
+    b = tl.load(b_ptr + offsets, mask=mask)
+    c = a + b
+    tl.store(c_ptr + offsets, c, mask=mask)
+
+def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
+    grid = (1,)
+    vector_add_kernel[grid](a, b, c, N)
+
+if __name__ == "__main__":
+    for N in range(1, 16):
+        a = torch.randn(N, device='cuda')
+        b = torch.randn(N, device='cuda')
+        torch_output = a + b
+        triton_output = torch.empty_like(a)
+        solve(a, b , triton_output, N)
+        if torch.allclose(triton_output, torch_output):
+            print("✅ Triton and Torch match")
+        else:
+            print("❌ Triton and Torch differ")
+```
+
+运行以上程序会输出15个`✅ Triton and Torch match`，我们的算子通过了第一阶段的健壮性检测。
+
