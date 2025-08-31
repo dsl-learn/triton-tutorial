@@ -278,6 +278,6 @@ if __name__ == "__main__":
         print("❌ Triton and Torch differ")
 ```
 
-我们可以修改任意`N`验证其正确，但是自己写的怎么确保呢，我们可以借助`online judge`，也就是[LeetGPU](https://leetgpu.com)。这个在线评测平台可以随机生成更多的数据帮你验证算子是否正确，另外其还提供了`H200`、`B200`等先进GPU。在[Vector Addition](https://leetgpu.com/challenges/vector-addition) 选择**Triton**并提交上述除`main`函数的代码，你会获得`Success`。
+我们可以修改任意 N 来实验不同情况，而在线评测平台`online judge` 可以帮你自动验证结果是否正确，也就是[LeetGPU](https://leetgpu.com)。这个在线评测平台可以随机生成更多的数据帮你验证算子是否正确，另外其还提供了`H200`、`B200`等先进GPU。在[Vector Addition](https://leetgpu.com/challenges/vector-addition) 选择**Triton**并提交上述除`main`函数的代码，你会获得`Success`。
 
 ![提交到LeetGPU的Vector Addition](pics/submit.png)
