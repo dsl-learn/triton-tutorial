@@ -1,9 +1,9 @@
 <h3 align="center">
-Hands-On Triton Tutorial 🚀
+Hands-On Triton Tutorial 📖
 </h3>
 
 <h4 align="center">
-Learn Triton with Basic Python Knowledge
+Learn Triton: No GPU Experience Required
 </h4>
 
 <p align="center">

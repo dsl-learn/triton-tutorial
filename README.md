@@ -3,7 +3,7 @@ Hands-On Triton Tutorial 📖
 </h3>
 
 <h4 align="center">
-Learn Triton with Basic Python Knowledge
+Learn Triton: No GPU Experience Required
 </h4>
 
 <p align="center">
@@ -14,7 +14,7 @@ Learn Triton with Basic Python Knowledge
 <a href="README.en.md"><b>English</b></a> | <a><b>中文</b></a>
 </p>
 
-本教程面向仅有Python基础、没有 GPU 背景的的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk、Gluon Attention
+本教程面向没有 GPU 经验的的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk、Gluon Attention
 等大模型算子进阶学习之路。如果没有Python基础，可以通过[Python编程入门教程(以在线评测平台为载体)](https://www.cnblogs.com/BobHuang/p/14341687.html)来学习 Python 语法，或者根据本教程内容与 ChatGPT 对话直接入门 Triton。
 
 作者：[BobHuang](https://github.com/sBobHuang) - [OpenMLIR](https://mlir.top)
