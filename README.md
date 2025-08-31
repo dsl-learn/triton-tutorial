@@ -14,7 +14,7 @@ Learn Triton with Basic Python Knowledge
 <a href="README.en.md"><b>English</b></a> | <a><b>中文</b></a>
 </p>
 
-本教程面向仅有Python基础的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk等大模型算子进阶学习之路。如果没有Python基础，可以看下[Python编程入门教程(以在线评测平台为载体) ](https://www.cnblogs.com/BobHuang/p/14341687.html)，把Python 基础语法搞通。
+本教程面向仅有Python基础的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk等大模型算子进阶学习之路。如果没有Python基础，可以通过[Python编程入门教程(以在线评测平台为载体) ](https://www.cnblogs.com/BobHuang/p/14341687.html)来入门 Python 语法。
 
 作者：[BobHuang](https://github.com/sBobHuang) - [OpenMLIR](https://mlir.top)
 
