@@ -21,11 +21,11 @@ Learn Triton: No GPU Experience Required
 
 作者邮箱：tt@bobhuang.xyz
 
-## Triton-简介
+## Triton简介
 
 [OpenAI/Triton](https://github.com/openai/triton) 是一个让你用 Python 写高性能 GPU 算子的编程语言(DSL)。目前有[NVIDIA](https://github.com/triton-lang/triton/tree/main/third_party/nvidia)、[AMD](https://github.com/triton-lang/triton/tree/main/third_party/amd)、[华为昇腾](https://github.com/Ascend/triton-ascend)、[寒武纪](https://github.com/FlagTree/flagtree/tree/main/third_party/cambricon)、[摩尔线程](https://github.com/FlagTree/flagtree/tree/main/third_party/mthreads)、[沐曦](https://github.com/FlagTree/flagtree/tree/main/third_party/metax)等多个后端，一个kernel**多种硬件**均可以运行，具体见[FlagOpen/FlagGems](https://github.com/FlagOpen/FlagGems)。
 
-优势：写法像 NumPy，轻松利用 GPU 并行和优化特性。
+优势：保持 Python 的易用性，同时充分发挥 GPU 并行计算和内存优化能力。
 
 应用：加速深度学习算子和自定义算子，提升大模型训练和推理性能。
 
@@ -33,7 +33,7 @@ Learn Triton: No GPU Experience Required
 
 # 目录
 
-* 1. [Triton 简介](#Triton-简介)
+* 1. Triton 简介
 * 2. [向量加算子实战](ex1-vector_add/blog.md)
   * 2.1. torch的向量加法
   * 2.2. 单program 16个元素加法和验证
