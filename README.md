@@ -35,7 +35,7 @@ Learn Triton: No GPU Experience Required
 
 ##  二、 <a name='向量加算子实战'></a>向量加算子实战
 
-本教程使用 Triton 3.4.0，只需安装 PyTorch==2.8.0。若使用较低版本的 PyTorch，可自行升级 Triton。
+本教程使用 Triton 3.4.0(released on 2025, Jul 31)，只需安装 torch==2.8.0。若使用较低版本的 PyTorch，可自行升级 Triton版本。Triton具有很好的版本兼容，大部分算子对Triton版本**没有要求**。
 
 入门先学 a + b，向量加法可以表示为 向量C = 向量A + 向量B，即把 A 和 B 中对应位置的每个数字相加。
 
