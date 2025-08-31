@@ -41,6 +41,7 @@ Learn Triton: No GPU Experience Required
   * 2.4. 多Block(program)运行
   * 2.5. 使用参数化的BLOCK_SIZE
 
-* 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
-* 附录2、kernel 优化机制覆盖情况(未覆盖)
-* 附录3、[关联项目及学习资料](other_repo.md)
+* 附录
+  * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
+  * 附录2、kernel 优化机制覆盖情况(未覆盖)
+  * 附录3、[关联项目及学习资料](other_repo.md)
