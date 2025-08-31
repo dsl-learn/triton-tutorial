@@ -2,7 +2,7 @@
 
 入门先学 a + b，向量加法可以表示为 向量c = 向量a + 向量b，即把 a 和 b 中对应位置的每个数字相加。
 
-### torch的向量加法
+### 1、torch的向量加法
 
 我们先用Pytorch来实现下，我们可以用 torch.randn 来生成随机的向量a、b，在torch里直接相加就可以。
 
@@ -33,7 +33,7 @@ tensor([-0.5568, -0.8474,  0.9805,  0.3682,  2.1769, -0.7145, -1.0820, -0.2469,
 
 Pytorch是通过调用了aten的[aten/src/ATen/native/cuda/CUDALoops.cuh:L334](https://github.com/pytorch/pytorch/blob/ba56102387ef21a3b04b357e5b183d48f0afefc7/aten/src/ATen/native/cuda/CUDALoops.cuh#L334) 的 `vectorized_elementwise_kernel` CUDA kernel来完成计算的。
 
-### 单program 16个元素加法和验证
+### 2、单program 16个元素加法和验证
 
 我们来写我们的Triton kernel。
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
 运行上述程序你会得到`✅ Triton and Torch match`，代表可以对上答案。
 
-### 通过mask控制元素访问
+### 3、通过mask控制元素访问
 
 如果输入是15个元素呢，是不是使用`offsets = tl.arange(0, 15)`就能解决问题呢，运行你会得到`ValueError: arange's range must be a power of 2`，这是Triton本身的限制，因为我们的`Block`(program, 线程块)处理的数据量通常是 2 的幂。为了避免访问越界，我们需要使用mask。
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
 我们可以增加`tl.arange`中end的值，来让更大N运行，你可以动手试试。
 
-### 多Block(program)运行
+### 4、多Block(program)运行
 
 `1048576`是`tl.arange`的最大值，比如`2097152`就会报错`ValueError: numel (2097152) exceeds triton maximum tensor numel (1048576)`，Triton 默认 单个 tensor 最多只能有 2^20 = 1048576 个元素。所以我们需要使用多个`Block`。
 
@@ -236,7 +236,7 @@ if __name__ == "__main__":
 
 ![提交到LeetGPU的Vector Addition](https://img2024.cnblogs.com/blog/1154439/202508/1154439-20250831151106589-1307418925.png)
 
-### 使用参数化的BLOCK_SIZE
+### 5、使用参数化的BLOCK_SIZE
 
 BLOCK_SIZE 我们往往不定义在kernel里，并通过参数传递，方便获得更高性能的算子。BLOCK_SIZE 被限制为常数，需要使用`tl.constexpr`，然后将`16` 替换为 `BLOCK_SIZE` 即可，完整代码如下所示。
 
@@ -276,6 +276,6 @@ if __name__ == "__main__":
 
 我们可以修改`BLOCK_SIZE = 16`在LeetGPU测试出最好性能的`BLOCK_SIZE`配置，我测试在B200最合适的`BLOCK_SIZE`为`1024`。能不能更快呢，当然可以，你可以和大模型一起学学。
 
-### 完整代码
+### 6、完整代码
 
 全部代码已保存在[ex1-vector_add/vector_add.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add.py) 和 [ex1-vector_add/vector_add_kernel.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add_kernel.py)。
