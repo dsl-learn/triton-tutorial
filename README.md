@@ -28,6 +28,7 @@ Learn Triton: No GPU Experience Required
  * 2.2 单program 16个元素加法和验证
  * 2.3 通过mask控制元素访问
  * 2.4 多Block(program)运行
+ * 2.5 使用参数化的BLOCK_SIZE
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -281,3 +282,47 @@ if __name__ == "__main__":
 我们可以修改任意 N 来实验不同情况，而在线评测平台`online judge` 可以帮你自动验证结果是否正确，也就是[LeetGPU](https://leetgpu.com)。这个在线评测平台可以随机生成更多的数据帮你验证算子是否正确，另外其还提供了`H200`、`B200`等先进GPU。在[Vector Addition](https://leetgpu.com/challenges/vector-addition) 选择**Triton**并提交上述除`main`函数的代码，你会获得`Success`。
 
 ![提交到LeetGPU的Vector Addition](pics/submit.png)
+
+### 2.5 使用参数化的BLOCK_SIZE
+
+BLOCK_SIZE 我们往往不定义在kernel里，并通过参数传递，方便获得更高性能的算子。BLOCK_SIZE 被限制为常数，需要使用`tl.constexpr`，然后将`16` 替换为 `BLOCK_SIZE` 即可，完整代码如下所示。
+
+```Python
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def vector_add_kernel(a_ptr, b_ptr, c_ptr, N, BLOCK_SIZE:tl.constexpr):
+    pid = tl.program_id(axis=0)
+    block_start = pid * BLOCK_SIZE
+    offsets = block_start + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    a = tl.load(a_ptr + offsets, mask=mask)
+    b = tl.load(b_ptr + offsets, mask=mask)
+    c = a + b
+    tl.store(c_ptr + offsets, c, mask=mask)
+
+def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
+    BLOCK_SIZE = 16
+    grid = (triton.cdiv(N, BLOCK_SIZE), )
+    vector_add_kernel[grid](a, b, c, N, BLOCK_SIZE=BLOCK_SIZE)
+
+if __name__ == "__main__":
+    N = 12345
+    a = torch.randn(N, device='cuda')
+    b = torch.randn(N, device='cuda')
+    torch_output = a + b
+    triton_output = torch.empty_like(a)
+    solve(a, b , triton_output, N)
+    if torch.allclose(triton_output, torch_output):
+        print("✅ Triton and Torch match")
+    else:
+        print("❌ Triton and Torch differ")
+```
+
+我们可以修改`BLOCK_SIZE = 16`在LeetGPU测试出最好性能的`BLOCK_SIZE`配置，我测试在B200最合适的`BLOCK_SIZE`为`1024`。能不能更快呢，当然可以，你可以和大模型一起学学。
+
+### 2.5 完整代码
+
+全部代码已保存在[ex1-vector_add/vector_add.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add.py) 和 [ex1-vector_add/vector_add_kernel.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add_kernel.py)。
