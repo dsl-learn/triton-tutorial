@@ -49,7 +49,7 @@ def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
     vector_add_kernel[grid](a, b, c)
 ```
 
-kernel内我们需要取出16个元素，对应位置元素相加后存起来即可。可以使用`tl.arange`生成连续索引`[0, 1, ..., 16)`，那么a的指针就可以用`a_ptr + offsets`表达，然后使用`tl.load`取出元素内容。在分别取出a和b后对两者进行相加，最后使用`tl.store`对结果进行存储，kernel代码如下所示。
+kernel内我们需要取出16个元素，对应位置元素相加后存起来即可。可以使用`tl.arange`生成连续索引`[0, 1, ..., 15]`，那么a的指针就可以用`a_ptr + offsets`表达，然后使用`tl.load`取出元素内容。在分别取出a和b后对两者进行相加，最后使用`tl.store`对结果进行存储，kernel代码如下所示。
 
 ```Python
 import triton
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
 如果输入是15个元素呢，是不是使用`offsets = tl.arange(0, 15)`就能解决问题呢，运行你会得到`ValueError: arange's range must be a power of 2`，这是Triton本身的限制，因为我们的`Block`(program, 线程块)处理的数据量通常是 2 的幂。为了避免访问越界，我们需要使用mask。
 
-mask是`tl.load`和`tl.store`的一个参数，我们计算mask也是将`tl.arange`的连续索引与`15`对比即可。
+mask是`tl.load`和`tl.store`的一个参数，计算mask将`tl.arange`的连续索引与`15`对比即可。
 
 ```Python
 @triton.jit
@@ -149,7 +149,7 @@ def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
     vector_add_kernel[grid](a, b, c, N)
 
 if __name__ == "__main__":
-    for N in range(1, 16):
+    for N in range(1, 16+1):
         a = torch.randn(N, device='cuda')
         b = torch.randn(N, device='cuda')
         torch_output = a + b
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             print("❌ Triton and Torch differ")
 ```
 
-运行以上程序会输出15个`✅ Triton and Torch match`，我们的算子通过了第一阶段的健壮性检测。
+运行以上程序会输出16个`✅ Triton and Torch match`，我们的算子通过了第一阶段的健壮性检测。
 
 我们可以增加`tl.arange`中end的值，来让更大N运行，你可以动手试试。
 
@@ -278,4 +278,8 @@ if __name__ == "__main__":
 
 ### 6、完整代码
 
-全部代码已保存在[ex1-vector_add/vector_add.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add.py) 和 [ex1-vector_add/vector_add_kernel.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add_kernel.py)。
+全部代码已保存在[ex1-vector_add/vector_add.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add.py) 和 [ex1-vector_add/vector_add_kernel.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex1-vector_add/vector_add_kernel.py)。可以直接命令行运行 ex1-vector_add/vector_add.py。
+
+## 继续练习
+
+建议继续使用LeetGPU 练习，可以试试 [Matrix Copy](https://leetgpu.com/challenges/matrix-copy) [Color Inversion](https://leetgpu.com/challenges/color-inversion) [Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose) [ReLU](https://leetgpu.com/challenges/relu) [Leaky ReLU](https://leetgpu.com/challenges/leaky-relu)，都刷完了其他随意。
