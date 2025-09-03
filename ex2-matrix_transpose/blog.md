@@ -2,9 +2,59 @@
 
 ## 矩阵转置算子实践
 
-矩阵转置将索引对应到`A[i][j]=B[j][i]`。torch的底层`CUDA`实现会利用共享内存，padding 解决 bank conflict等等优化，这是一个memory-bound 的算子, 因为其核心是完成矩阵内存排布的转换。具体可以参考[[CUDA 学习笔记] 矩阵转置算子优化](https://zhuanlan.zhihu.com/p/692010210)。
+[Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose)矩阵转置将索引对应到`output[j][i]=input[i][j]`。torch的底层`CUDA`实现会利用共享内存，padding 解决 bank conflict等等优化，这是一个memory-bound 的算子, 因为其核心是完成矩阵内存排布的转换。具体可以参考[[CUDA 学习笔记] 矩阵转置算子优化](https://zhuanlan.zhihu.com/p/692010210)。
 
 # 1、1D grid 进行转置
+
+把program_id直接对应到数组的索引下标是在我们之前基础上可以想到的解决方法。我们使用`rows * cols`的 grid，然后去做对应的store是一个很朴素的想法。具体代码如下所示
+
+```Python
+import torch
+import triton
+import triton.language as tl
+
+# 反转数组 即 input[i] ↔ input[N-1-i]
+@triton.jit
+def matrix_transpose_kernel(input_ptr, output_ptr, rows, cols):
+    # 获取当前 program 在 grid 中的索引（第 0 维）
+    pid = tl.program_id(axis=0)
+
+    # load旧值
+    t = tl.load(input_ptr + pid)
+
+    # 计算行坐标
+    row_index = pid // cols
+
+    # 计算列坐标
+    col_index = pid % cols
+
+    # 计算新位置
+    new_index = col_index * rows + row_index
+
+    # 按照新位置去存
+    tl.store(output_ptr + new_index, t)
+
+
+def solve(input: torch.Tensor, output: torch.Tensor, rows: int, cols: int):
+    grid = (rows*cols, )
+    matrix_transpose_kernel[grid](
+        input, output,
+        rows, cols
+    )
+
+
+if __name__ == "__main__":
+    rows, cols = 63, 72
+    a = torch.randn((rows, cols), device='cuda')
+    torch_output = a.T
+    triton_output = torch.empty(torch_output.shape, device='cuda')
+    solve(a, triton_output, rows, cols)
+    if torch.allclose(triton_output, torch_output):
+        print("✅ Triton and Torch match")
+    else:
+        print("❌ Triton and Torch differ")
+```
+
 
 # 2、2D grid 进行转置
 
