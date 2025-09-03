@@ -284,4 +284,4 @@ if __name__ == "__main__":
 
 ## 继续练习
 
-建议继续使用LeetGPU 练习，可以试试 [Matrix Copy](https://leetgpu.com/challenges/matrix-copy) [Color Inversion](https://leetgpu.com/challenges/color-inversion) [Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose) [ReLU](https://leetgpu.com/challenges/relu) [Leaky ReLU](https://leetgpu.com/challenges/leaky-relu)，都刷完了其他随意。
+建议继续使用LeetGPU 练习，可以试试 [Matrix Copy](https://leetgpu.com/challenges/matrix-copy) [Color Inversion](https://leetgpu.com/challenges/color-inversion) [Reverse Array](https://leetgpu.com/challenges/reverse-array) [Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose) [ReLU](https://leetgpu.com/challenges/relu) [Leaky ReLU](https://leetgpu.com/challenges/leaky-relu)，都刷完了其他随意。
