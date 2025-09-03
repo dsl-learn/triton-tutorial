@@ -55,6 +55,7 @@ if __name__ == "__main__":
         print("❌ Triton and Torch differ")
 ```
 
+LeetGPU上本题的rows, cols数据范围比较小，`1 ≤ rows, cols ≤ 8192` 所以直接过了。
 
 # 2、2D grid 进行转置
 

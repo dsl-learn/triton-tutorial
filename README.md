@@ -40,6 +40,12 @@ Learn Triton: No GPU Experience Required
   * 3、 通过mask控制元素访问
   * 4、 多Block(program)运行
   * 5、 使用参数化的BLOCK_SIZE
+* 三、 [练习1课后作业题解](ex1-vector_add/homework_solution.md)
+  * 1、 Matrix Copy 矩阵拷贝
+  * 2、 Color Inversion 颜色反转
+  * 3、 Reverse Array 数组反转
+* 四、 [矩阵转置实践](ex2-matrix_transpose/blog.md)
+  * 1、1D grid 进行转置
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
