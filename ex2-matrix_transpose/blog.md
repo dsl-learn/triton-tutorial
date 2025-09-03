@@ -4,7 +4,7 @@
 
 上次练习中的前两道题还是比较简单的，我们先动手做一下。
 
-1、[Matrix Copy](https://leetgpu.com/challenges/matrix-copy)
+### 1、[Matrix Copy](https://leetgpu.com/challenges/matrix-copy)
 
 在 GPU 上实现一个程序，将输入的 `N×N` 浮点矩阵 `A` 元素逐一复制到输出矩阵 `B`，即满足`A[i][j]=B[i][j]`。
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
         print("❌ Triton and Torch differ")
 ```
 
-2、[Color Inversion](https://leetgpu.com/challenges/color-inversion)
+### 2、[Color Inversion](https://leetgpu.com/challenges/color-inversion)
 
 颜色反转操作：将每个颜色分量`(R, G, B)` 用 `255−分量值` 计算得到，`Alpha` 分量保持不变。
 
@@ -117,3 +117,91 @@ if __name__ == "__main__":
     else:
         print("❌ Triton and Torch differ")
 ```
+
+### 3、[Reverse Array](https://leetgpu.com/challenges/reverse-array)
+
+反转数组是对`offsets`计算的巩固，实际上是`A[i] = A[N-1-i]`，在Triton我们操作的是`offsets`的连续索引。
+
+不考虑mask的情况下可以简化`A[i+offsets] = B[N-i-offsets]`。在前后交换中，我们需要在1个program内拿到前和后两块，所以grid数目会砍半，如果数组长度为奇数，中间那个正好不用处理。以下是算子代码
+
+```Python
+import torch
+import triton
+import triton.language as tl
+
+# 反转数组 即 input[i] ↔ input[N-1-i]
+@triton.jit
+def reverse_kernel(input_ptr, N, BLOCK_SIZE: tl.constexpr):
+    # 获取当前 program 在 grid 中的索引（第 0 维）
+    pid = tl.program_id(axis=0)
+
+    # 计算当前 block 内元素的索引
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+
+    # 只需要处理数组前半部分，因为每次交换会处理前后两个位置
+    mask = offsets < (N // 2)
+
+    # 计算需要交换的前后位置索引
+    front_pos = offsets
+    back_pos = N - 1 - offsets
+
+    # 从数组中加载这两个位置的值（只加载有效索引）
+    front_val = tl.load(input_ptr + front_pos, mask=mask)
+    back_val = tl.load(input_ptr + back_pos, mask=mask)
+
+    # 交换前后两个值
+    tl.store(input_ptr + front_pos, back_val, mask=mask)  # 前位置写回后值
+    tl.store(input_ptr + back_pos, front_val, mask=mask)  # 后位置写回前值
+
+
+def solve(input: torch.Tensor, N: int):
+    BLOCK_SIZE = 1024
+    grid = (triton.cdiv(N // 2, BLOCK_SIZE), )
+    reverse_kernel[grid](input, N, BLOCK_SIZE)
+
+
+if __name__ == "__main__":
+    N = 21121
+    a = torch.randn(N, device='cuda')
+    torch_output = a.flip(0)
+    triton_output = a.clone()
+    solve(triton_output, N)
+    if torch.allclose(triton_output, torch_output):
+        print("✅ Triton and Torch match")
+    else:
+        print("❌ Triton and Torch differ")
+```
+
+## 矩阵转置算子实践
+
+矩阵转置将索引对应到`A[i][j]=B[j][i]`。torch的底层`CUDA`实现会利用共享内存，padding 解决 bank conflict等等优化，这是一个memory-bound 的算子, 因为其核心是完成矩阵内存排布的转换。具体可以参考[[CUDA 学习笔记] 矩阵转置算子优化](https://zhuanlan.zhihu.com/p/692010210)。
+
+# 1、1D grid 进行转置
+
+# 2、2D grid 进行转置
+
+# 3、tl.trans 原语
+
+Triton存在[tl.trans](https://github.com/triton-lang/triton/blob/c817b9b63d40ead1ed023b7663f5ea14f676f4bc/python/triton/language/core.py#L1740)，我们需要使用其加速按块转置加速我们的Kenrel。
+
+```
+    Permutes the dimensions of a tensor.
+
+    If the parameter :code:`dims` is not specified, the function defaults to a (1,0) permutation,
+    effectively transposing a 2D tensor.
+
+    :param input: The input tensor.
+    :param dims: The desired ordering of dimensions.  For example,
+        :code:`(2, 1, 0)` reverses the order dims in a 3D tensor.
+
+    :code:`dims` can be passed as a tuple or as individual parameters: ::
+
+        # These are equivalent
+        trans(x, (2, 1, 0))
+        trans(x, 2, 1, 0)
+
+    :py:func:`permute` is equivalent to this function, except it doesn't
+    have the special case when no permutation is specified.
+```
+
+这段话就是告诉你，`tl.trans`实际上是对张量进行重排，参数没指定的话，相当于对二维张量做转置。其支持通过元组传入`dims`参数，也可以直接传多个`dims`参数。
