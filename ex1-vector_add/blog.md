@@ -1,3 +1,5 @@
+摘要：本文通过向量加算子的实现实践了`tl.arange`、`tl.load`、`tl.store`、`tl.program_id`和 `tl.constexpr` 的 Triton kernel 原语。
+
 ## 向量加算子实战
 
 入门先学 a + b，向量加法可以表示为 向量c = 向量a + 向量b，即把 a 和 b 中对应位置的每个数字相加。
