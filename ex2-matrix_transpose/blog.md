@@ -300,12 +300,9 @@ def solve(input: torch.Tensor, output: torch.Tensor, rows: int, cols: int):
 if __name__ == "__main__":
     rows, cols = 63, 72
     a = torch.randn((rows, cols), device='cuda')
-    print(a)
     torch_output = a.T
-    print(a, torch_output)
     triton_output = torch.empty(torch_output.shape, device='cuda')
     solve(a, triton_output, rows, cols)
-    print(triton_output, torch_output)
     if torch.allclose(triton_output, torch_output):
         print("✅ Triton and Torch match")
     else:
