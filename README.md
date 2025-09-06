@@ -45,7 +45,12 @@ Learn Triton: No GPU Experience Required
   * 2、 Color Inversion 颜色反转
   * 3、 Reverse Array 数组反转
 * 四、 [矩阵转置实践](ex2-matrix_transpose/blog.md)
-  * 1、1D grid 进行转置
+  * 1、1D grid 进行native转置
+  * 2、2D grid 进行native转置
+  * 3、tl.trans 原语
+  * 4、维度扩展的1x1 block实践
+  * 5、通过mask控制元素访问
+
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
