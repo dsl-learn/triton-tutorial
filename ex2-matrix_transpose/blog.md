@@ -1,10 +1,10 @@
 摘要：本文通过矩阵转置算子的实现实践了`tl.trans` 的 Triton kernel 原语，并首次尝试了2D grid。
 
-# 矩阵转置算子实践
+## 矩阵转置算子实践
 
 [Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose)矩阵转置将索引对应到`output[j][i]=input[i][j]`。torch的底层`CUDA`实现会利用共享内存，padding 解决 bank conflict等等优化，这是一个memory-bound 的算子, 因为其核心是完成矩阵内存排布的转换。具体可以参考[[CUDA 学习笔记] 矩阵转置算子优化](https://zhuanlan.zhihu.com/p/692010210)。
 
-## 1、1D grid 进行native转置
+### 1、1D grid 进行native转置
 
 把program_id直接对应到数组的索引下标是在我们之前基础上可以想到的解决方法。我们使用`rows * cols`的 grid，然后去做对应的store是一个很朴素的想法。具体代码如下所示
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
 LeetGPU上本题的rows, cols数据范围比较小，`1 ≤ rows, cols ≤ 8192` 所以直接过了。
 
-## 2、2D grid 进行native转置
+### 2、2D grid 进行native转置
 
 1D可以过，2D是同理的，我们可以将`grid`设置为`(rows, cols)`，那分别使用`row_index`和`col_index`就可以了。具体代码如下所示
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
 1D和2D的实现在Triton的时间是差不多的，均为21.6ms。与CUDA的native实现时间一样。
 
-## 3、tl.trans 原语
+### 3、tl.trans 原语
 
 Triton存在[tl.trans](https://github.com/triton-lang/triton/blob/c817b9b63d40ead1ed023b7663f5ea14f676f4bc/python/triton/language/core.py#L1740)，我们需要使用其加速按块转置加速我们的Kenrel。
 
@@ -132,7 +132,7 @@ Triton存在[tl.trans](https://github.com/triton-lang/triton/blob/c817b9b63d40ea
 
 这段话就是告诉你，`tl.trans`实际上是对张量进行重排，参数没指定的话，相当于对二维张量做转置。其支持通过元组传入`dims`参数，也可以直接传多个`dims`参数。
 
-## 4、维度扩展的1x1 block实践
+### 4、维度扩展的1x1 block实践
 
 根据其原语，我们只要定义出`block`，然后直接使用`tl.trans(block)`就可以了。
 
@@ -228,7 +228,7 @@ if __name__ == "__main__":
 
 目前程序还未得到加速，均是`21.6ms`，效果马上来。提升迅猛。
 
-## 5、通过mask控制元素访问
+### 5、通过mask控制元素访问
 
 我们把块增大到32，和向量加类似，不过这里是2个维度
 
@@ -309,16 +309,16 @@ if __name__ == "__main__":
         print("❌ Triton and Torch differ")
 ```
 
-## 6、性能对比
+### 6、性能对比
 
 我们的代码来到了`0.087ms`，之前还是`21.66ms`，加速比为**249x**。`CUDA`中最快的为`0.0678ms`，这个解答是公开的，我现在运行是`0.0827ms`，Pytorch 原生实现是`0.21 ms`。
 
-## 7、使用参数化的BLOCK_SIZE
+### 7、使用参数化的BLOCK_SIZE
 
 按照向量加的惯例我们继续使用参数化的BLOCK_SIZE，而不是32这个数字。全部代码已保存在[ex2-matrix_transpose/matrix_transpose.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex2-matrix_transpose/matrix_transpose.py) 和 [ex2-matrix_transpose/matrix_transpose_kernel.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex2-matrix_transpose/matrix_transpose_kernel.py)。可以直接命令行运行 ex2-matrix_transpose/matrix_transpose.py。
 
-# 继续练习
+## 继续练习
 
-你面临的torch tensor 往往并不是`contiguous`连续的，你可以先试试有`stride`跨步后怎么做。
+你面临的torch tensor 往往并不是`contiguous`连续的，你可以先试试有`stride`跨步后怎么做，写出更健壮的算子。
 
 建议继续使用LeetGPU 练习，可以试试 [ReLU](https://leetgpu.com/challenges/relu) [Leaky ReLU](https://leetgpu.com/challenges/leaky-relu)，都刷完了其他随意。
