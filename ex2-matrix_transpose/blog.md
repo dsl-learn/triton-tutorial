@@ -13,7 +13,7 @@ import torch
 import triton
 import triton.language as tl
 
-# 反转数组 即 input[i] ↔ input[N-1-i]
+# 矩阵转置 即 output[j][i]=input[i][j]
 @triton.jit
 def matrix_transpose_kernel(input_ptr, output_ptr, rows, cols):
     # 获取当前 program 在 grid 中的索引（第 0 维）
@@ -58,6 +58,53 @@ if __name__ == "__main__":
 LeetGPU上本题的rows, cols数据范围比较小，`1 ≤ rows, cols ≤ 8192` 所以直接过了。
 
 # 2、2D grid 进行转置
+
+1D可以过，2D是同理的，我们可以将`grid`设置为`(rows, cols)`，那分别使用`row_index`和`col_index`就可以了。具体代码如下所示
+
+```Python
+import torch
+import triton
+import triton.language as tl
+
+# 矩阵转置 即 output[j][i]=input[i][j]
+@triton.jit
+def matrix_transpose_kernel(input_ptr, output_ptr, rows, cols):
+    # 获取当前 program 在 grid 中的索引（第 0 维）, 即 row_index
+    row_index = tl.program_id(axis=0)
+    # 获取当前 program 在 grid 中的索引（第 1 维）, 即 col_index
+    col_index = tl.program_id(axis=1)
+
+    # 计算旧位置
+    old_index = row_index * cols + col_index
+    # 从旧位置去取
+    t = tl.load(input_ptr + old_index)
+
+    # 计算新位置
+    new_index = col_index * rows + row_index
+    # 按照新位置去存
+    tl.store(output_ptr + new_index, t)
+
+
+def solve(input: torch.Tensor, output: torch.Tensor, rows: int, cols: int):
+    grid = (rows, cols)
+    matrix_transpose_kernel[grid](
+        input, output,
+        rows, cols
+    )
+
+if __name__ == "__main__":
+    rows, cols = 63, 72
+    a = torch.randn((rows, cols), device='cuda')
+    torch_output = a.T
+    triton_output = torch.empty(torch_output.shape, device='cuda')
+    solve(a, triton_output, rows, cols)
+    if torch.allclose(triton_output, torch_output):
+        print("✅ Triton and Torch match")
+    else:
+        print("❌ Triton and Torch differ")
+```
+
+1D和2D的实现在Triton的时间是差不多的，均为21.6ms。与CUDA的native实现时间一样。
 
 # 3、tl.trans 原语
 
