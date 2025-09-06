@@ -2,7 +2,7 @@
 
 ### 1、[Triton tutorials](https://github.com/triton-lang/triton/blob/main/python/tutorials)
 
-本文的向量加就取于Triton的[python/tutorials/01-vector-add.py](https://github.com/triton-lang/triton/tree/main/python/tutorials/01-vector-add.py)，他还提供了包括[fused-attention](https://github.com/triton-lang/triton/blob/main/python/tutorials/06-fused-attention.py)、[fused-softmax](https://github.com/triton-lang/triton/blob/main/python/tutorials/02-fused-softmax.py)、[grouped-gemm](https://github.com/triton-lang/triton/blob/main/python/tutorials/08-grouped-gemm.py)在内的示例。
+向量加就取于Triton的[python/tutorials/01-vector-add.py](https://github.com/triton-lang/triton/tree/main/python/tutorials/01-vector-add.py)，他还提供了包括[fused-attention](https://github.com/triton-lang/triton/blob/main/python/tutorials/06-fused-attention.py)、[fused-softmax](https://github.com/triton-lang/triton/blob/main/python/tutorials/02-fused-softmax.py)、[grouped-gemm](https://github.com/triton-lang/triton/blob/main/python/tutorials/08-grouped-gemm.py)在内的示例。
 
 ### 2、[Gluon tutorials](https://github.com/triton-lang/triton/tree/main/python/tutorials/gluon)
 
@@ -14,7 +14,7 @@ Triton官方推出的高性能kernel，有topk、matmul、swiglu、routing等高
 
 ### 3、[LeetGPU 答案](https://github.com/OpenMLIR/leetgpu-challenges)
 
-目前LeetGPU easy部分的全部Triton答案我已公开到此项目中，本教程将持续使用LeetGPU中的题目做为教程的例题。
+目前LeetGPU easy级别的全部Triton答案我已公开到此项目中，本教程将持续使用LeetGPU中的题目做为教程的例题，直接一步大模型算子不容易。
 
 ### 4、[FlagGems](https://github.com/FlagOpen/FlagGems)
 
@@ -22,7 +22,7 @@ FlagGems是清华智源高性能通用 AI 算子库，目前已加入 PyTorch �
 
 ### 5、[GPU MODE Lecture 14: Practitioners Guide to Triton](https://www.youtube.com/watch?v=DdTsX6DQk24)
 
-GPU MODE 是一个专注于 GPU 编程的开源社区组织，旨在通过互动式学习、竞赛和工具开发，提升开发者在高性能计算（HPC）、深度学习系统和 GPU 编程的能力。这是他们推出的其中一节课。[Triton Kernel collection by cuda-mode](https://github.com/cuda-mode/triton-index) 是他们的Triton kernel集。
+GPU MODE 是一个专注于 GPU 编程的开源社区组织，旨在通过互动式学习和工具开发，提升开发者在高性能计算（HPC）、深度学习系统和 GPU 编程的能力。[Triton Kernel collection by cuda-mode](https://github.com/cuda-mode/triton-index) 是他们的Triton kernel集。
 
 ### 6、[linkedin/Liger-Kernel](https://github.com/linkedin/Liger-Kernel)
 

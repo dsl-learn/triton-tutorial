@@ -21,7 +21,7 @@
 | `tl.ravel`                   | 形状    | 扁平化 tensor             | `tl.ravel(a)`                           | 待书写   |
 | `tl.reshape`                 | 形状    | 改变 tensor 形状           | `tl.reshape(a,(2,2))`                   | 待书写   |
 | `tl.split`                   | 形状    | 最后维度分割                 | `tl.split(a,2)`                         | 待书写   |
-| `tl.trans`                   | 形状    | 转置维度                   | `tl.trans(a)`                           | 待书写   |
+| `tl.trans`                   | 形状    | 转置维度                   | `tl.trans(a)`                           | 矩阵转置算子   |
 | `tl.view`                    | 形状    | 返回不同形状视图               | `tl.view(a,(2,2))`                      | 待书写   |
 | `tl.dot`                     | 线性代数  | 矩阵乘积                   | `tl.dot(a,b)`                           | 待书写   |
 | `tl.dot_scaled`              | 线性代数  | 矩阵乘积，支持缩放              | `tl.dot_scaled(a,b)`                    | 待书写   |

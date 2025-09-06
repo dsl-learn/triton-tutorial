@@ -29,17 +29,29 @@ Learn Triton: No GPU Experience Required
 
 应用：加速深度学习算子和自定义算子，提升大模型训练和推理性能。
 
-本教程使用 Triton 3.4.0(released on 2025, Jul 31)，只需安装 torch==2.8.0。若使用较低版本的 PyTorch，可自行升级 Triton版本。Triton具有很好的版本兼容，大部分算子对Triton版本**没有要求**。
+本教程使用 Triton 3.4.0(released on 2025, Jul 31)，只需安装 torch==2.8.0。若使用较低版本的 PyTorch，可自行升级 Triton版本。Triton具有还不错的版本兼容，大部分算子对Triton版本**没有要求**。
 
 # 目录
 
-* 1. Triton 简介
-* 2. [向量加算子实战](ex1-vector_add/blog.md)
-  * 2.1. torch的向量加法
-  * 2.2. 单program 16个元素加法和验证
-  * 2.3. 通过mask控制元素访问
-  * 2.4. 多Block(program)运行
-  * 2.5. 使用参数化的BLOCK_SIZE
+* 一、 Triton 简介
+* 二、 [向量加算子实战](ex1-vector_add/blog.md)
+  * 1、 torch的向量加法
+  * 2、 单program 16个元素加法和验证
+  * 3、 通过mask控制元素访问
+  * 4、 多Block(program)运行
+  * 5、 使用参数化的BLOCK_SIZE
+* 三、 [练习1课后作业题解](ex1-vector_add/homework_solution.md)
+  * 1、 Matrix Copy 矩阵拷贝
+  * 2、 Color Inversion 颜色反转
+  * 3、 Reverse Array 数组反转
+* 四、 [矩阵转置实践](ex2-matrix_transpose/blog.md)
+  * 1、1D grid 进行native转置
+  * 2、2D grid 进行native转置
+  * 3、tl.trans 原语
+  * 4、维度扩展的1x1 block实践
+  * 5、通过mask控制元素访问
+  * 6、性能对比
+
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
