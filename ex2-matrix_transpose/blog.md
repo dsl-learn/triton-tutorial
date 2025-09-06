@@ -201,7 +201,7 @@ def matrix_transpose_kernel(input_ptr, output_ptr, rows, cols):
     transposed_block = tl.trans(block)
 
     # 类似 col_index * rows + row_index
-    new_block = offs_col[None, :] * rows + offs_row[:, None]
+    new_block = offs_col[:, None] * rows + offs_row[None, :]
 
     # 存储转置后的 transposed_block
     tl.store(output_ptr + new_block, transposed_block)
