@@ -50,6 +50,7 @@ Learn Triton: No GPU Experience Required
   * 3、tl.trans 原语
   * 4、维度扩展的1x1 block实践
   * 5、通过mask控制元素访问
+  * 6、性能对比
 
 
 * 附录
