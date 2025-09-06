@@ -312,3 +312,13 @@ if __name__ == "__main__":
 ## 6、性能对比
 
 我们的代码来到了`0.087ms`，之前还是`21.66ms`，加速比为**249x**。`CUDA`中最快的为`0.0678ms`，这个解答是公开的，我现在运行是`0.0827ms`，Pytorch 原生实现是`0.21 ms`。
+
+## 7、使用参数化的BLOCK_SIZE
+
+按照向量加的惯例我们继续使用参数化的BLOCK_SIZE，而不是32这个数字。全部代码已保存在[ex2-matrix_transpose/matrix_transpose.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex2-matrix_transpose/matrix_transpose.py) 和 [ex2-matrix_transpose/matrix_transpose_kernel.py](https://github.com/OpenMLIR/tt-tut/tree/main/ex2-matrix_transpose/matrix_transpose_kernel.py)。可以直接命令行运行 ex2-matrix_transpose/matrix_transpose.py。
+
+# 继续练习
+
+你面临的torch tensor 往往并不是`contiguous`连续的，你可以先试试有`stride`跨步后怎么做。
+
+建议继续使用LeetGPU 练习，可以试试 [ReLU](https://leetgpu.com/challenges/relu) [Leaky ReLU](https://leetgpu.com/challenges/leaky-relu)，都刷完了其他随意。
