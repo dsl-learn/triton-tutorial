@@ -19,7 +19,7 @@ Learn Triton: No GPU Experience Required
 
 作者：[BobHuang](https://github.com/sBobHuang) - [OpenMLIR](https://mlir.top)，[知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)
 
-作者邮箱：tt@bobhuang.xyz
+你可以通过 linkedin 和我交流：[in/sbob](https://www.linkedin.com/in/sbob/)
 
 ## Triton简介
 
