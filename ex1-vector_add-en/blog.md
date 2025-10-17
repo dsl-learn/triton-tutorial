@@ -660,9 +660,9 @@ Aha! Triton is FASTER, when we have large input sizes!
 
 **TODO**:
 
-1. Fixed `N`, try different `BLOCK_SIZE`, how does the change of `BLOCK_SIZE` affects the efficiency and what is the optimal `BLOCK_SIZE` for the hardware you have?
-2. Fixed `BLOCK_SIZE`, try different `N`, how does the change of `N` affects the efficiency and what is the optimal `N` for the hardware you have?
-3. Does your observation in (1.) and (2.) varies on different hardwares?
+1. Fixed `N`, Varying `BLOCK_SIZE`: With a fixed input size `N`, how does changing the `BLOCK_SIZE` affect the kernel's efficiency, and what is the optimal `BLOCK_SIZE` for the target hardware?
+2. Fixed `BLOCK_SIZE`, Varying `N`: With a fixed `BLOCK_SIZE`, how does changing the input size `N` affect the kernel's efficiency, and what is the optimal `N` that maximizes efficiency for the target hardware?
+3. Do your observations and conclusions from questions 1 and 2 vary across different GPU architectures or hardware?
 
 [LeetGPU](https://leetgpu.com) is the leetcode for GPU kernel programming, it offers test cases and different hardwares for you to evaluate the code you write. Check this link out: [Vector Addition](https://leetgpu.com/challenges/vector-addition), and submit your code to see if it passes the test.
 
