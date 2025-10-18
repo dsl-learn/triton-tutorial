@@ -94,7 +94,7 @@ def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):
     vector_add_kernel[grid](a, b, c)
 ```
 
-As aforementioned, we focus on `N=16`, therefore, we need to pair the values in the same position of two vectors and perform element-wise addition. We can first use `tl.arrange()` to generate indexes for elements [0, 1, 2, ..., 15]. The address of each element then can be written as `a_ptr + offset`. We then perform the addtion and save the result by using `tl.store( )`.
+As aforementioned, we focus on `N=16`, therefore, we need to pair the values in the same position of two vectors and perform element-wise addition. We can first use `tl.arange()` to generate indexes for elements [0, 1, 2, ..., 15]. The address of each element then can be written as `a_ptr + offset`. We then perform the addtion and save the result by using `tl.store( )`.
 
 There we have written the vector addition kernel in Python:
 
@@ -199,7 +199,7 @@ Surprisingly (or not), it gives the output:
 
 Actually, it works for any value of `N` in the range of [1, 16]. But this is EXTREMELY DANGEROUS because you are writing a part of the memory you are NOT supposed to touch, please never do so.
 
-To avoid out-of-bounds memory load/store, the size of the vectors and the `tl.arrange()` need to be consistent. Persumably we can change `tl.arrange(0, 16)` to `tl.arrange(0, 15)` when we have `N=15`. Let's give it a try:
+To avoid out-of-bounds memory load/store, the size of the vectors and the `tl.arange()` need to be consistent. Persumably we can change `tl.arange(0, 16)` to `tl.arange(0, 15)` when we have `N=15`. Let's give it a try:
 
 ```Python
 """ WARNING: FOLLOWING CODE SAMPLE DEMONSTRATES A WRONG PATTERN"""
@@ -307,7 +307,7 @@ The current Triton kernel only works properly when the input size is ≤ 16. We 
 
 ### 4. Multiple Thread Blocks for Large-size Inputs
 
-**Callback 2**: The official documentation of `tl.arrange()` says this function:
+**Callback 2**: The official documentation of `tl.arange()` says this function:
 
 >Returns contiguous values within the half-open interval [start, end). end - start must be less than or equal to TRITON_MAX_TENSOR_NUMEL = 1048576
 
@@ -329,7 +329,7 @@ In NVIDIA GPU, the hierarchy of logical execution (from high level to low level)
 
 Just like what we do with the offset in previous code blocks, we don't need to define the behavior of each block -- remember we have SIMT inside of a Thread Block? Similarily, we have SPMD (Single Program Multiple Data) here.
 
-A grid is a collection of blocks, and it can be 1D, 2D, or 3D, it can be defined as `grid = ()`, e.g. `grid=(B, C, H, W)`. For vector operations, it’s sufficient to arrange the blocks only along the x dimension. Inside the kernel, we can use `tl.program_id(axis=0)` to obtain the block index.
+A grid is a collection of blocks, and it can be 1D, 2D, or 3D, it can be defined as `grid = ()`, e.g. `grid=(B, C, H, W)`. For vector operations, it’s sufficient to arange the blocks only along the x dimension. Inside the kernel, we can use `tl.program_id(axis=0)` to obtain the block index.
 
 Therefore, multiple blocks can be managed by Grid. Here's how:
 
@@ -500,7 +500,7 @@ offsets = block_start + tl.arange(0, 16)
 or, in a even better way, we want to write:
 
 ```python
-offsets = block_start + tl.arrange(0, BLOCK_SIZE)
+offsets = block_start + tl.arange(0, BLOCK_SIZE)
 ```
 
 where `BLOCK_SIZE` is a runtime constant. There we have the final version of our vector addition kernel:
@@ -675,9 +675,15 @@ Source code of this markdown can be found in `./ex1-vector_add-en/vector_add.ipy
 ## Beyond Vector Addition
 
 More practice:
-[Matrix Copy](https://leetgpu.com/challenges/matrix-copy) 
-[Color Inversion](https://leetgpu.com/challenges/color-inversion) 
-[Reverse Array](https://leetgpu.com/challenges/reverse-array) 
-[Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose) 
-[ReLU](https://leetgpu.com/challenges/relu) 
+
+[Matrix Copy](https://leetgpu.com/challenges/matrix-copy)
+
+[Color Inversion](https://leetgpu.com/challenges/color-inversion)
+
+[Reverse Array](https://leetgpu.com/challenges/reverse-array)
+
+[Matrix Transpose](https://leetgpu.com/challenges/matrix-transpose)
+
+[ReLU](https://leetgpu.com/challenges/relu)
+
 [Leaky ReLU](https://leetgpu.com/challenges/leaky-relu)
