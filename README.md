@@ -17,7 +17,10 @@ Learn Triton: No GPU Experience Required
 本教程面向没有 GPU 经验的的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk、Gluon Attention
 等大模型算子进阶学习之路。如果没有Python基础，可以通过[Python编程入门教程(以在线评测平台为载体)](https://www.cnblogs.com/BobHuang/p/14341687.html)来学习 Python 语法，或者根据本教程内容与 ChatGPT 对话直接入门 Triton。
 
-作者：[BobHuang](https://github.com/sBobHuang) - [OpenMLIR](https://mlir.top)
+作者：[BobHuang](https://github.com/sBobHuang)，[知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)，[Triton算子开发及编译器资源整理](https://zhuanlan.zhihu.com/p/2018815133590271874)
+
+> [!WARNING]
+> 本项目已停止开发，并进入归档状态。
 
 作者邮箱：tt@bobhuang.xyz
 
@@ -35,22 +38,23 @@ Learn Triton: No GPU Experience Required
 
 * 一、 Triton 简介
 * 二、 [向量加算子实战](ex1-vector_add/blog.md)
-  * 1、 torch的向量加法
-  * 2、 单program 16个元素加法和验证
-  * 3、 通过mask控制元素访问
-  * 4、 多Block(program)运行
-  * 5、 使用参数化的BLOCK_SIZE
+  * 1、 [torch的向量加法](ex1-vector_add/blog.md#1torch的向量加法)
+  * 2、 [单program 16个元素加法和验证](ex1-vector_add/blog.md#2单program-16个元素加法和验证)
+  * 3、 [通过mask控制元素访问](ex1-vector_add/blog.md#3通过mask控制元素访问)
+  * 4、 [多Block(program)运行](ex1-vector_add/blog.md#4多blockprogram运行)
+  * 5、 [使用参数化的BLOCK_SIZE](ex1-vector_add/blog.md#5使用参数化的block_size)
 * 三、 [练习1课后作业题解](ex1-vector_add/homework_solution.md)
-  * 1、 Matrix Copy 矩阵拷贝
-  * 2、 Color Inversion 颜色反转
-  * 3、 Reverse Array 数组反转
+  * 1、 [Matrix Copy 矩阵拷贝](ex1-vector_add/homework_solution.md#1matrix-copy)
+  * 2、 [Color Inversion 颜色反转](ex1-vector_add/homework_solution.md#2color-inversion)
+  * 3、 [Reverse Array 数组反转](ex1-vector_add/homework_solution.md#3reverse-array)
 * 四、 [矩阵转置实践](ex2-matrix_transpose/blog.md)
-  * 1、1D grid 进行native转置
-  * 2、2D grid 进行native转置
-  * 3、tl.trans 原语
-  * 4、维度扩展的1x1 block实践
-  * 5、通过mask控制元素访问
-  * 6、性能对比
+  * 1、[1D grid 进行native转置](ex2-matrix_transpose/blog.md#11d-grid-进行native转置)
+  * 2、[2D grid 进行native转置](ex2-matrix_transpose/blog.md#22d-grid-进行native转置)
+  * 3、[tl.trans 原语](ex2-matrix_transpose/blog.md#3tltrans-原语)
+  * 4、[维度扩展的1x1 block实践](ex2-matrix_transpose/blog.md#4维度扩展的1x1-block实践)
+  * 5、[通过mask控制元素访问](ex2-matrix_transpose/blog.md#5通过mask控制元素访问)
+  * 6、[性能对比](ex2-matrix_transpose/blog.md#6性能对比)
+  * 7、[使用参数化的block_size](ex2-matrix_transpose/blog.md#7使用参数化的block_size)
 
 
 * 附录
