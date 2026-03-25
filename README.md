@@ -56,6 +56,8 @@ Learn Triton: No GPU Experience Required
   * 6、[性能对比](ex2-matrix_transpose/blog.md#6性能对比)
   * 7、[使用参数化的block_size](ex2-matrix_transpose/blog.md#7使用参数化的block_size)
 
+> [!WARNING]
+> 本项目已停止开发，并进入归档状态。
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
