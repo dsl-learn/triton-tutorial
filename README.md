@@ -52,6 +52,8 @@ Learn Triton: No GPU Experience Required
   * 5、通过mask控制元素访问
   * 6、性能对比
 
+> [!WARNING]
+> 本项目已停止开发，并进入归档状态。
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
