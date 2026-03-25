@@ -17,9 +17,12 @@ Learn Triton: No GPU Experience Required
 本教程面向没有 GPU 经验的的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk、Gluon Attention
 等大模型算子进阶学习之路。如果没有Python基础，可以通过[Python编程入门教程(以在线评测平台为载体)](https://www.cnblogs.com/BobHuang/p/14341687.html)来学习 Python 语法，或者根据本教程内容与 ChatGPT 对话直接入门 Triton。
 
-作者：[BobHuang](https://github.com/sBobHuang) - [OpenMLIR](https://mlir.top)，[知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)
+作者：[BobHuang](https://github.com/sBobHuang)，[知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)，[Triton算子开发及编译器资源整理](https://zhuanlan.zhihu.com/p/2018815133590271874)
 
-你可以通过 linkedin 和我交流：[in/sbob](https://www.linkedin.com/in/sbob/)
+> [!WARNING]
+> 本项目已停止开发，并进入归档状态。
+
+作者邮箱：tt@bobhuang.xyz
 
 ## Triton简介
 
@@ -53,18 +56,8 @@ Learn Triton: No GPU Experience Required
   * 6、[性能对比](ex2-matrix_transpose/blog.md#6性能对比)
   * 7、[使用参数化的block_size](ex2-matrix_transpose/blog.md#7使用参数化的block_size)
 
-> [!WARNING]
-> 本项目已停止开发，并进入归档状态。
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
   * 附录2、kernel 优化机制覆盖情况(未覆盖)
   * 附录3、[关联项目及学习资料](other_repo.md)
-
-# [知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)
-
-[从零开始教你Triton算子（一）—— 向量加](https://zhuanlan.zhihu.com/p/1945518475989713455)
-
-[从零开始教你Triton算子（二）—— 练习题解](https://zhuanlan.zhihu.com/p/1946822570201580464)
-
-[从零开始教你Triton算子（三）—— 矩阵转置](https://zhuanlan.zhihu.com/p/1947731427543189117)
