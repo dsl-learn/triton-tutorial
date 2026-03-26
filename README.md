@@ -14,15 +14,12 @@ Learn Triton: No GPU Experience Required
 <a href="README.en.md"><b>English</b></a> | <a><b>中文</b></a>
 </p>
 
-本教程面向没有 GPU 经验的的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk、Gluon Attention
-等大模型算子进阶学习之路。如果没有Python基础，可以通过[Python编程入门教程(以在线评测平台为载体)](https://www.cnblogs.com/BobHuang/p/14341687.html)来学习 Python 语法，或者根据本教程内容与 ChatGPT 对话直接入门 Triton。
-
-作者：[BobHuang](https://github.com/sBobHuang)，[知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)，[Triton算子开发及编译器资源整理](https://zhuanlan.zhihu.com/p/2018815133590271874)
+本教程面向没有 GPU 经验的的Triton初学者，带你从基础的向量加到RoPE、matmul_ogs、topk、Gluon Attention 等大模型算子进阶学习之路。只写到了矩阵转置，建议使用和 LLM 对话或者在 Agent 环境中学。
 
 > [!WARNING]
-> 本项目已停止开发，并进入归档状态。
+> 本项目已停止更新，并进入归档状态。
 
-作者邮箱：tt@bobhuang.xyz
+作者：[BobHuang](https://github.com/sBobHuang)，[知乎专栏](https://www.zhihu.com/column/c_1948447902964901167)，[Triton算子开发及编译器资源整理](https://zhuanlan.zhihu.com/p/2018815133590271874)
 
 ## Triton简介
 
@@ -55,9 +52,6 @@ Learn Triton: No GPU Experience Required
   * 5、[通过mask控制元素访问](ex2-matrix_transpose/blog.md#5通过mask控制元素访问)
   * 6、[性能对比](ex2-matrix_transpose/blog.md#6性能对比)
   * 7、[使用参数化的block_size](ex2-matrix_transpose/blog.md#7使用参数化的block_size)
-
-> [!WARNING]
-> 本项目已停止开发，并进入归档状态。
 
 * 附录
   * 附录1、[Triton kernel 原语覆盖情况](language_cover.md)
